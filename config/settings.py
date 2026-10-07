@@ -5,6 +5,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Veritabanı dosyasının yolu
 DB_PATH = os.path.join(BASE_DIR, "guardian.db")
+# Kurtarma (Recovery) verilerinin tutulacağı hafif JSON dosyası
+RECOVERY_FILE_PATH = os.path.join(BASE_DIR, "recovery_state.json")
 
 # Pomodoro Süreleri (Dakika)
 POMODORO_WORK_MIN = 25

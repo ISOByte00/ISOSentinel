@@ -28,6 +28,7 @@ class PostSessionDialog(QDialog):
         layout = QVBoxLayout()
         form_layout = QFormLayout()
 
+        # Metin düzeltildi
         self.lbl_info = QLabel(f"{self.subject} - {self.topic} oturumu tamamlandı.\nLütfen soru istatistiklerini girin:")
         layout.addWidget(self.lbl_info)
 
@@ -52,26 +53,26 @@ class PostSessionDialog(QDialog):
         self.setLayout(layout)
 
     def save_data(self):
-            correct = self.spin_correct.value()
-            wrong = self.spin_wrong.value()
-            empty = self.spin_empty.value()
-            
-            if correct == 0 and wrong == 0 and empty == 0:
-                self.accept()
-                return
-
-            from database.repositories.analytics_repository import AnalyticsRepository
-            from database.models import QuestionBatch
-            
-            repo = AnalyticsRepository()
-            batch = QuestionBatch(
-                id=None, session_id=self.session_id, subject=self.subject, 
-                topic=self.topic, correct_count=correct, wrong_count=wrong, empty_count=empty
-            )
-            repo.save_question_batch(batch)
-            
-            print(f"VERİ KAYDEDİLDİ: {correct}D, {wrong}Y, {empty}B")
+        correct = self.spin_correct.value()
+        wrong = self.spin_wrong.value()
+        empty = self.spin_empty.value()
+        
+        if correct == 0 and wrong == 0 and empty == 0:
             self.accept()
+            return
+
+        from database.repositories.analytics_repository import AnalyticsRepository
+        from database.models import QuestionBatch
+        
+        repo = AnalyticsRepository()
+        batch = QuestionBatch(
+            id=None, session_id=self.session_id, subject=self.subject, 
+            topic=self.topic, correct_count=correct, wrong_count=wrong, empty_count=empty
+        )
+        repo.save_question_batch(batch)
+        
+        print(f"VERİ KAYDEDİLDİ: {correct}D, {wrong}Y, {empty}B")
+        self.accept()
 
 
 class DashboardWindow(QWidget):
@@ -94,7 +95,10 @@ class DashboardWindow(QWidget):
         self.time_left = POMODORO_WORK_MIN * 60
 
         self.init_ui()
-        self.init_timers()
+        self.init_timers() # Zamanlayıcılar burada hazırlandı
+        
+        # UI tam yüklendikten hemen sonra kontrol etmesi için ufak bir gecikme veriyoruz
+        QTimer.singleShot(100, self.check_recovery)
 
     def init_ui(self):
         layout = QVBoxLayout()
@@ -141,13 +145,58 @@ class DashboardWindow(QWidget):
         self.setLayout(layout)
 
     def init_timers(self):
-            self.pomodoro_timer = QTimer()
-            self.pomodoro_timer.timeout.connect(self.update_timer)
+        """Zamanlayıcıların sistem başladığında doğru bir şekilde tanımlanmasını sağlar."""
+        self.pomodoro_timer = QTimer()
+        self.pomodoro_timer.timeout.connect(self.update_timer)
 
-            from core.event_bus import bus
-            self.guard_timer = QTimer()
-            # Her 2 saniyede bir Event Bus'a GUARD_TICK fırlat
-            self.guard_timer.timeout.connect(lambda: bus.publish("GUARD_TICK"))
+        from core.event_bus import bus
+        self.guard_timer = QTimer()
+        self.guard_timer.timeout.connect(lambda: bus.publish("GUARD_TICK"))
+
+    def check_recovery(self):
+        """Açılışta yarım kalan oturumları kontrol eder ve pop-up ile sorar."""
+        from core.recovery import RecoveryManager
+        
+        pending = RecoveryManager.get_pending_recovery()
+        if pending:
+            session_id = pending.get("session_id")
+            subject = pending.get("subject")
+            topic = pending.get("topic")
+            remaining = pending.get("remaining_seconds")
+            
+            mins, secs = divmod(remaining, 60)
+            
+            reply = QMessageBox.question(
+                self, 
+                "Oturum Kurtarma", 
+                f"Yarım kalan bir oturum bulundu!\n\n"
+                f"Ders: {subject}\nKonu: {topic}\nKalan Süre: {mins:02d}:{secs:02d}\n\n"
+                f"Kaldığınız yerden devam etmek ister misiniz?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            
+            if reply == QMessageBox.StandardButton.Yes:
+                # UI'ı kurtarılan değerlerle güncelle
+                self.input_subject.setCurrentText(subject)
+                self.input_topic.setText(topic)
+                self.time_left = remaining
+                self.lbl_timer.setText(f"{mins:02d}:{secs:02d}")
+                
+                # Arka planı dirilt
+                self.session.resume_session(session_id)
+                self.pomodoro_timer.start(1000)
+                self.guard_timer.start(2000)
+                
+                self.lbl_status.setText("Durum: KURTARILDI (Guard Aktif)")
+                self.lbl_status.setStyleSheet("color: #f38ba8;")
+                self.btn_start.setEnabled(False)
+                self.btn_stop.setEnabled(True)
+                self.input_topic.setEnabled(False)
+                self.input_subject.setEnabled(False)
+            else:
+                # Kullanıcı devam etmek istemedi
+                self.session.mark_as_interrupted(session_id)
+                RecoveryManager.clear_state()
 
     def start_pomodoro(self):
         topic = self.input_topic.text().strip()
@@ -199,5 +248,15 @@ class DashboardWindow(QWidget):
             self.time_left -= 1
             mins, secs = divmod(self.time_left, 60)
             self.lbl_timer.setText(f"{mins:02d}:{secs:02d}")
+            
+            # Her saniye kalan süreyi JSON'a kaydet (Heartbeat)
+            from core.recovery import RecoveryManager
+            if self.session.active_session_id:
+                RecoveryManager.save_state(
+                    self.session.active_session_id,
+                    self.input_subject.currentText(),
+                    self.input_topic.text(),
+                    self.time_left
+                )
         else:
             self.stop_pomodoro()
