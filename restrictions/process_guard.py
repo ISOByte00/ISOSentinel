@@ -57,3 +57,23 @@ def scan_and_kill(session_id):
 
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
+
+            # --- EVENT BUS LİSTENER'LARI ---
+_active_session_id = None
+
+def on_session_started(data):
+    """EventBus: Oturum başladığında tetiklenir."""
+    global _active_session_id
+    _active_session_id = data.get("session_id")
+    print(f"[Process Guard] Korumalar Aktif! (Session ID: {_active_session_id})")
+
+def on_session_stopped(data):
+    """EventBus: Oturum bittiğinde tetiklenir."""
+    global _active_session_id
+    print(f"[Process Guard] Korumalar Devre Dışı Bırakıldı.")
+    _active_session_id = None
+
+def on_guard_tick(data):
+    """EventBus: Arayüzden gelen 2 saniyelik tarama tetiklemesi."""
+    if _active_session_id:
+        scan_and_kill(_active_session_id)

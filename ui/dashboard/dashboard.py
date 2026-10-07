@@ -141,11 +141,13 @@ class DashboardWindow(QWidget):
         self.setLayout(layout)
 
     def init_timers(self):
-        self.pomodoro_timer = QTimer()
-        self.pomodoro_timer.timeout.connect(self.update_timer)
+            self.pomodoro_timer = QTimer()
+            self.pomodoro_timer.timeout.connect(self.update_timer)
 
-        self.guard_timer = QTimer()
-        self.guard_timer.timeout.connect(self.session.check_environment)
+            from core.event_bus import bus
+            self.guard_timer = QTimer()
+            # Her 2 saniyede bir Event Bus'a GUARD_TICK fırlat
+            self.guard_timer.timeout.connect(lambda: bus.publish("GUARD_TICK"))
 
     def start_pomodoro(self):
         topic = self.input_topic.text().strip()
