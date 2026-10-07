@@ -1,0 +1,62 @@
+{
+  "version": "1.0",
+  "blocked_apps": [
+    {
+      "name": "VALORANT-Win64-Shipping.exe",
+      "paths": [],
+      "sha256": [],
+      "action": "kill",
+      "enabled": true,
+      "reason": "Oyun: Valorant çalışma saatlerinde yasaklanmıştır."
+    },
+    {
+      "name": "League of Legends.exe",
+      "paths": [],
+      "sha256": [],
+      "action": "kill",
+      "enabled": true,
+      "reason": "Oyun: League of Legends çalışma saatlerinde yasaklanmıştır."
+    },
+    {
+      "name": "Steam.exe",
+      "paths": [],
+      "sha256": [],
+      "action": "kill",
+      "enabled": false,
+      "reason": "Oyun Platformu: Steam."
+    },
+    {
+      "name": "Discord.exe",
+      "paths": [],
+      "sha256": [],
+      "action": "kill",
+      "enabled": true,
+      "reason": "İletişim: Discord odak süresince engellendi."
+    },
+    {
+      "name": "Spotify.exe",
+      "paths": [],
+      "sha256": [],
+      "action": "kill",
+      "enabled": false,
+      "reason": "Müzik / Medya."
+    },
+    {
+      "name": "Telegram.exe",
+      "paths": [],
+      "sha256": [],
+      "action": "kill",
+      "enabled": true,
+      "reason": "Mesajlaşma: Telegram odak süresince engellendi."
+    }
+  ],
+  "allowlist": [
+    "python.exe",
+    "pythonw.exe",
+    "cmd.exe",
+    "powershell.exe",
+    "explorer.exe",
+    "taskmgr.exe",
+    "Code.exe"
+  ]
+}

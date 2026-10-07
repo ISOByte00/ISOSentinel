@@ -1,0 +1,58 @@
+{
+  "TYT": [
+    {
+      "subject": "Türkçe",
+      "topics": ["Sözcükte Anlam", "Cümlede Anlam", "Paragrafta Anlam", "Ses Bilgisi", "Yazım Kuralları", "Noktalama İşaretleri", "Sözcük Türleri", "Cümle Bilgisi", "Anlatım Bozuklukları"]
+    },
+    {
+      "subject": "Matematik",
+      "topics": ["Temel Kavramlar", "Sayı Basamakları", "Bölme-Bölünebilme", "EBOB-EKOK", "Rasyonel Sayılar", "Basit Eşitsizlikler", "Mutlak Değer", "Üslü Sayılar", "Köklü Sayılar", "Çarpanlara Ayırma", "Oran-Orantı", "Problemler", "Kümeler", "Fonksiyonlar", "Polinomlar", "İkinci Dereceden Denklemler", "Permütasyon-Kombinasyon", "Olasılık", "Veri-İstatistik"]
+    },
+    {
+      "subject": "Geometri",
+      "topics": ["Doğruda ve Üçgende Açılar", "Özel Üçgenler", "Açıortay-Kenarortay", "Üçgende Eşlik ve Benzerlik", "Üçgende Alan", "Çokgenler ve Dörtgenler", "Çember ve Daire", "Katı Cisimler"]
+    },
+    {
+      "subject": "Fizik",
+      "topics": ["Fizik Bilimine Giriş", "Madde ve Özellikleri", "Hareket ve Kuvvet", "İş, Güç ve Enerji", "Isı ve Sıcaklık", "Elektrostatik", "Elektrik ve Manyetizma", "Basınç ve Kaldırma Kuvveti", "Dalgalar", "Optik"]
+    },
+    {
+      "subject": "Kimya",
+      "topics": ["Kimya Bilimi", "Atom ve Periyodik Sistem", "Kimyasal Türler Arası Etkileşimler", "Maddenin Halleri", "Doğa ve Kimya", "Kimyanın Temel Kanunları", "Karışımlar", "Asitler, Bazlar ve Tuzlar", "Kimya Her Yerde"]
+    },
+    {
+      "subject": "Biyoloji",
+      "topics": ["Yaşam Bilimi Biyoloji", "Hücre ve Organelleri", "Canlılar Dünyası", "Hücre Bölünmeleri", "Kalıtımın Genel İlkeleri", "Ekosistem Ekolojisi"]
+    }
+  ],
+  "AYT": [
+    {
+      "subject": "Matematik",
+      "topics": ["Fonksiyonlar (İleri)", "Polinomlar", "İkinci Dereceden Denklemler & Eşitsizlikler", "Parabol", "Trigonometri", "Logaritma", "Diziler", "Limit ve Süreklilik", "Türev", "İntegral", "Permütasyon, Kombinasyon, Binom, Olasılık"]
+    },
+    {
+      "subject": "Fizik",
+      "topics": ["Vektörler ve Bağıl Hareket", "Newton'ın Hareket Yasaları", "Bir ve İki Boyutta Sabit İvmeli Hareket", "İş, Güç ve Enerji II", "İtme ve Çizgisel Momentum", "Tork ve Denge", "Basit Makineler", "Elektriksel Kuvvet ve Potansiyel", "Manyetizma ve Elektromanyetik İndüksiyon", "Alternatif Akım ve Transformatörler", "Çembersel Hareket", "Basit Harmonik Hareket", "Dalga Mekaniği", "Atom Fiziğine Giriş ve Radyoaktivite", "Modern Fizik"]
+    },
+    {
+      "subject": "Kimya",
+      "topics": ["Modern Atom Teorisi", "Gazlar", "Sıvı Çözeltiler ve Çözünürlük", "Kimyasal Tepkimelerde Enerji", "Kimyasal Tepkimelerde Hız", "Kimyasal Tepkimelerde Denge", "Asit-Baz Dengesi", "Çözünürlük Dengesi (KÇÇ)", "Kimya ve Elektrik", "Karbon Kimyasına Giriş", "Organik Kimya"]
+    },
+    {
+      "subject": "Biyoloji",
+      "topics": ["Sinir Sistemi", "Endokrin Sistem", "Duyu Organları", "Destek ve Hareket Sistemi", "Sindirim Sistemi", "Dolaşım ve Bağışıklık Sistemi", "Solunum Sistemi", "Boşaltım Sistemi", "Üreme Sistemi ve Embriyonik Gelişim", "Komünite ve Popülasyon Ekolojisi", "Nükleik Asitler ve Protein Sentezi", "Hücresel Solunum ve Fotosentez", "Bitki Biyolojisi", "Canlılar ve Çevre"]
+    },
+    {
+      "subject": "Edebiyat",
+      "topics": ["Şiir Bilgisi", "Edebi Sanatlar", "İslamiyet Öncesi ve Geçiş Dönemi", "Halk Edebiyatı", "Divan Edebiyatı", "Tanzimat Edebiyatı", "Servet-i Fünun ve Fecr-i Ati", "Milli Edebiyat", "Cumhuriyet Dönemi Edebiyatı", "Edebi Akımlar"]
+    },
+    {
+      "subject": "Tarih",
+      "topics": ["Tarih ve Zaman", "İlk ve Orta Çağlarda Türk Dünyası", "İslam Medeniyetinin Doğuşu", "Türklerin İslamiyet'i Kabulü", "Yerleşme ve Devletleşme Sürecinde Selçuklu", "Beylikten Devlete Osmanlı", "Dünya Gücü Osmanlı", "Değişim Çağında Avrupa ve Osmanlı", "Uluslararası İlişkilerde Denge Stratejisi", "Devrimler Çağında Değişen Devlet-Toplum", "Sermaye ve Emek", "XX. Yüzyıl Başlarında Osmanlı ve Dünya", "Milli Mücadele", "Atatürkçülük ve Türk İnkılabı"]
+    },
+    {
+      "subject": "Coğrafya",
+      "topics": ["Doğal Sistemler", "Beşeri Sistemler", "Mekânsal Bir Sentez: Türkiye", "Küresel Ortam: Bölgeler ve Ülkeler", "Çevre ve Toplum"]
+    }
+  ]
+}
