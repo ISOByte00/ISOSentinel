@@ -25,12 +25,14 @@ def init_db():
         )
     """)
 
-    # İhlal Kayıtları Tablosu
+# İhlal Kayıtları Tablosu
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS violations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             session_id INTEGER,
             process_name TEXT,
+            process_path TEXT,
+            file_hash TEXT,
             severity TEXT,
             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (session_id) REFERENCES study_sessions (id)
@@ -52,10 +54,11 @@ def init_db():
         )
     """)
 
-    # Sistem Tarafından Öğrenilen Uygulama Hafızası (Akıllı Gardiyan)
+  # Sistem Tarafından Öğrenilen Uygulama Hafızası
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS process_cache (
             process_name TEXT PRIMARY KEY,
+            file_hash TEXT,
             status TEXT,
             last_checked TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )

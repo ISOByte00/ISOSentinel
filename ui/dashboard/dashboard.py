@@ -5,7 +5,6 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton,
 from PyQt6.QtCore import QTimer, Qt
 from core.session_manager import SessionController
 from config.settings import POMODORO_WORK_MIN
-from database.database import get_connection
 
 class PostSessionDialog(QDialog):
     """Pomodoro bitiminde açılacak soru veri giriş ekranı."""
@@ -53,26 +52,26 @@ class PostSessionDialog(QDialog):
         self.setLayout(layout)
 
     def save_data(self):
-        correct = self.spin_correct.value()
-        wrong = self.spin_wrong.value()
-        empty = self.spin_empty.value()
-        
-        # Soru verilerini kaydetmiyorsa veritabanını yorma
-        if correct == 0 and wrong == 0 and empty == 0:
-            self.accept()
-            return
+            correct = self.spin_correct.value()
+            wrong = self.spin_wrong.value()
+            empty = self.spin_empty.value()
+            
+            if correct == 0 and wrong == 0 and empty == 0:
+                self.accept()
+                return
 
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO question_batches (session_id, subject, topic, correct_count, wrong_count, empty_count)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, (self.session_id, self.subject, self.topic, correct, wrong, empty))
-        conn.commit()
-        conn.close()
-        
-        print(f"VERİ KAYDEDİLDİ: {correct}D, {wrong}Y, {empty}B")
-        self.accept()
+            from database.repositories.analytics_repository import AnalyticsRepository
+            from database.models import QuestionBatch
+            
+            repo = AnalyticsRepository()
+            batch = QuestionBatch(
+                id=None, session_id=self.session_id, subject=self.subject, 
+                topic=self.topic, correct_count=correct, wrong_count=wrong, empty_count=empty
+            )
+            repo.save_question_batch(batch)
+            
+            print(f"VERİ KAYDEDİLDİ: {correct}D, {wrong}Y, {empty}B")
+            self.accept()
 
 
 class DashboardWindow(QWidget):
