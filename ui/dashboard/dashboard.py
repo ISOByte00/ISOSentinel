@@ -244,6 +244,16 @@ class DashboardWindow(QWidget):
         self.input_subject.setEnabled(True)
         self.input_topic.clear()
 
+        # Kullanıcı kendi durdurursa Interrupted olur
+        self.session.stop_session(interrupted=True)
+        
+        if active_id:
+            dialog = PostSessionDialog(active_id, subject, topic, self)
+            dialog.lbl_title.setText("Oturum Yarıda Kesildi!") # YENİ SATIR
+            dialog.exec()
+            
+        self.lbl_status.setText("Durum: BEKLEMEDE")
+
     def update_timer(self):
         if self.time_left > 0:
             self.time_left -= 1

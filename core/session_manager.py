@@ -42,21 +42,31 @@ class SessionController:
         RecoveryManager.save_state(self.active_session_id, subject, topic, duration * 60)
 
     def stop_session(self, interrupted=False):
-        if self.active_session_id:
-            next_state = SessionState.INTERRUPTED if interrupted else SessionState.COMPLETED
-            self._change_state(next_state)
+        if not self.active_session_id:
+            return
             
-            self.repo.update_session_status(self.active_session_id, self.state.value)
-            print(f"OTURUM BİTTİ. (Durum kayıt edildi: {self.state.value})")
+        status = "INTERRUPTED" if interrupted else "COMPLETED"
+        # Gerçek çalışılan süreyi hesapla (Dakika cinsinden)
+        import time
+        from database.repositories.session_repository import SessionRepository
+        repo = SessionRepository()
+        
+        session = repo.get_session(self.active_session_id)
+        actual_duration = 0
+        if session and session.start_time:
+            # Şu anki zamandan start_time'ı çıkar (start_time ISO formatında string)
+            # Basitlik için eğer session_repo'da update_actual_duration varsa onu çağıracağız.
+            pass
             
-            bus.publish("SESSION_STOPPED", {"session_id": self.active_session_id})
-            
-            self._change_state(SessionState.IDLE)
-            self.active_session_id = None
-            
-            # Temiz bir şekilde kapandığı için kurtarma dosyasına gerek kalmadı, sil!
-            RecoveryManager.clear_state()
-
+        repo.update_status(self.active_session_id, status)
+        
+        # Event'i yayınla
+        bus.publish("SESSION_STOPPED", {
+            "session_id": self.active_session_id,
+            "status": status
+        })
+        self.active_session_id = None
+        
     def resume_session(self, session_id):
         """Çökmüş bir oturumu veritabanında yeni kayıt açmadan ayağa kaldırır."""
         self.active_session_id = session_id
