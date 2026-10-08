@@ -37,5 +37,10 @@ class QuestionBatch:
 class ProcessCacheItem:
     process_name: str
     file_hash: str
-    status: str # 'ALLOWED' or 'BLOCKED'
-    last_checked: Optional[datetime] = None
+    status: str
+    # YENİ: Adli Bilişim (Forensics) Verileri
+    original_filename: str = ""
+    product_name: str = ""
+    company_name: str = ""
+    file_size: int = 0
+    parent_process: str = ""

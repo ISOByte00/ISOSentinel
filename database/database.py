@@ -54,13 +54,17 @@ def init_db():
         )
     """)
 
-  # Sistem Tarafından Öğrenilen Uygulama Hafızası
+    # Sistem Tarafından Öğrenilen Uygulama Hafızası
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS process_cache (
             process_name TEXT PRIMARY KEY,
             file_hash TEXT,
             status TEXT,
-            last_checked TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            original_filename TEXT,
+            product_name TEXT,
+            company_name TEXT,
+            file_size INTEGER,
+            parent_process TEXT
         )
     """)
 

@@ -1,14 +1,17 @@
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 
-# Proje ana dizinini bulur
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# .env dosyasındaki gizli anahtarları sisteme yükle
+load_dotenv()
 
-# Veritabanı dosyasının yolu
+BASE_DIR = Path(__file__).resolve().parent.parent
 DB_PATH = os.path.join(BASE_DIR, "guardian.db")
-# Kurtarma (Recovery) verilerinin tutulacağı hafif JSON dosyası
 RECOVERY_FILE_PATH = os.path.join(BASE_DIR, "recovery_state.json")
 
-# Pomodoro Süreleri (Dakika)
+# RAWG API Anahtarını güvenli şekilde al
+RAWG_API_KEY = os.getenv("RAWG_API_KEY")
+
 POMODORO_WORK_MIN = 25
 POMODORO_SHORT_BREAK_MIN = 5
 POMODORO_LONG_BREAK_MIN = 15
