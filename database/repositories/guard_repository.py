@@ -33,12 +33,15 @@ class GuardRepository:
         """, (violation.session_id, violation.process_name, violation.process_path, violation.file_hash, violation.severity))
         self.conn.commit()
 
-    def get_cached_status(self, process_name: str) -> str:
+    def get_cached_item(self, exe_path: str) -> dict:
+        """Cache kaydını hash'i ile birlikte döndürür (Stale Cache Bypass'ı engellemek için)."""
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT status FROM process_cache WHERE process_name = ?", (process_name,))
+            cursor.execute('SELECT status, file_hash FROM process_cache WHERE process_name = ?', (exe_path,))
             row = cursor.fetchone()
-            return row['status'] if row else None
+            if row:
+                return {"status": row[0], "file_hash": row[1]}
+            return None
 
     def set_cached_status(self, item: ProcessCacheItem):
         with self.get_connection() as conn:

@@ -39,8 +39,18 @@ class RecoveryManager:
             try:
                 with open(RECOVERY_FILE_PATH, 'r', encoding='utf-8') as f:
                     data = json.load(f)
+                    
                     if data.get("status") == "STUDYING":
+                        # VERİTABANINDAN DOĞRULAMA (JSON var ama DB 'COMPLETED' dediyse iptal et)
+                        from database.repositories.session_repository import SessionRepository
+                        repo = SessionRepository()
+                        session = repo.get_session(data.get("session_id"))
+                        
+                        if session and session.status != "STUDYING":
+                            RecoveryManager.clear_state() # Yalan alarm, sil gitsin
+                            return None
+                            
                         return data
-            except json.JSONDecodeError:
-                pass # Dosya bozulmuşsa görmezden gel
+            except Exception:
+                pass
         return None

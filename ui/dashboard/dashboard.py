@@ -226,7 +226,8 @@ class DashboardWindow(QWidget):
         subject = self.input_subject.currentText()
         topic = self.input_topic.text()
         
-        self.session.stop_session()
+        # SADECE BU SATIRI DEĞİŞTİR: Kullanıcı kendi durdurursa Interrupted olur
+        self.session.stop_session(interrupted=True)
 
         # Oturum id'si varsa, veri girişi dialogunu aç
         if active_id:
@@ -249,7 +250,6 @@ class DashboardWindow(QWidget):
             mins, secs = divmod(self.time_left, 60)
             self.lbl_timer.setText(f"{mins:02d}:{secs:02d}")
             
-            # Her saniye kalan süreyi JSON'a kaydet (Heartbeat)
             from core.recovery import RecoveryManager
             if self.session.active_session_id:
                 RecoveryManager.save_state(
@@ -259,4 +259,24 @@ class DashboardWindow(QWidget):
                     self.time_left
                 )
         else:
-            self.stop_pomodoro()
+            # SÜRE BİTİNCE BURASI ÇALIŞIR (Doğal Bitiş = Completed)
+            self.pomodoro_timer.stop()
+            self.guard_timer.stop()
+            active_id = self.session.active_session_id
+            subject = self.input_subject.currentText()
+            topic = self.input_topic.text()
+            
+            self.session.stop_session(interrupted=False)
+            
+            if active_id:
+                dialog = PostSessionDialog(active_id, subject, topic, self)
+                dialog.exec()
+                
+            self.lbl_status.setText("Durum: BEKLEMEDE")
+            self.lbl_status.setStyleSheet("color: #cdd6f4;")
+            self.lbl_timer.setText(f"{POMODORO_WORK_MIN:02d}:00")
+            self.btn_start.setEnabled(True)
+            self.btn_stop.setEnabled(False)
+            self.input_topic.setEnabled(True)
+            self.input_subject.setEnabled(True)
+            self.input_topic.clear()

@@ -143,33 +143,47 @@ def scan_and_kill(session_id):
                 
             exe_path = exe_path.lower()
             process_name = proc.info['name'].lower()
-
-            # 0. SİSTEM, DEV SÜREÇLERİ VE OYUN LAUNCHER'LARI
-            if process_name in SYSTEM_DEV_WHITELIST or process_name in LAUNCHER_WHITELIST:
-                continue
-
-            # 1. PATH CACHE KONTROLÜ
-            cached_status = repo.get_cached_status(exe_path) 
-            if cached_status == 'ALLOWED': continue
-            if cached_status == 'BLOCKED':
-                proc.kill()
-                continue
-
-            file_hash = get_file_hash(exe_path)
             
-            # 2. HASH (PARMAK İZİ) KONTROLÜ
+            # SADECE EN BAŞTA HASH HESAPLIYORUZ (Sistem maliyetini düşürmek için lazy loading yapılabilir ama güvenlik için şart)
+            file_hash = get_file_hash(exe_path)
+
+            # 1. MUTLAK GÜVENLİK: HASH (PARMAK İZİ) KONTROLÜ
+            # Eğer bir dosya daha önce 'BLOCKED' yemişse, adını python.exe bile yapsa anında vurulur.
             if repo.check_if_hash_is_blocked(file_hash):
                 proc.kill()
+                # Sahte isimle yeni bir yere taşındıysa o yol da yasaklanır
                 repo.set_cached_status(build_cache_item(proc, exe_path, file_hash, 'BLOCKED'))
-                print(f"[IHLAL - HASH TESPİTİ] İsim Değiştirme Yakalandı! ({process_name})")
+                print(f"[IHLAL - HASH TESPİTİ] İsim/Yol Değiştirme Yakalandı! ({process_name})")
                 continue
 
-            # 3. KESİN MASUMLAR
+            # 2. STALE CACHE KONTROLÜ (Hash Doğrulamalı Cache)
+            # Eğer adam zararsız C:\ders\test.exe'yi silip yerine aynı isimde cs2.exe atarsa yakalanır.
+            cached_data = repo.get_cached_item(exe_path)
+            if cached_data:
+                if cached_data["file_hash"] == file_hash:
+                    if cached_data["status"] == 'ALLOWED': 
+                        continue
+                    if cached_data["status"] == 'BLOCKED':
+                        proc.kill()
+                        continue
+                else:
+                    print(f"[GÜVENLİK ALARMI] {exe_path} yolu değişmiş/manipüle edilmiş! Cache yok sayıldı.")
+                    # Hash eşleşmediyse alt satırlara inip yeni bir dosyaymış gibi tekrar analiz edilecek.
+
+            # --- ARTIK DOSYANIN MANİPÜLE EDİLMEDİĞİNDEN VE YASAKLI OLMADIĞINDAN EMİNİZ ---
+
+            # 3. SİSTEM, DEV SÜREÇLERİ VE OYUN LAUNCHER'LARI
+            if process_name in SYSTEM_DEV_WHITELIST or process_name in LAUNCHER_WHITELIST:
+                # İsim eşleşmesi sadece hash doğrulamasından SONRA yapılıyor. Mutlak güvenlik sağlandı.
+                repo.set_cached_status(build_cache_item(proc, exe_path, file_hash, 'ALLOWED'))
+                continue
+
+            # 4. KESİN MASUMLAR
             if any(safe_path in exe_path for safe_path in SAFE_PATHS):
                 repo.set_cached_status(build_cache_item(proc, exe_path, file_hash, 'ALLOWED'))
                 continue
 
-            # 4. KESİN SUÇLULAR (OYUN KLASÖRLERİ)
+            # 5. KESİN SUÇLULAR (OYUN KLASÖRLERİ)
             if any(zone in exe_path for zone in GAME_ZONES):
                 proc.kill()
                 repo.set_cached_status(build_cache_item(proc, exe_path, file_hash, 'BLOCKED'))
@@ -177,7 +191,7 @@ def scan_and_kill(session_id):
                 print(f"[IHLAL - GAME ZONE] {process_name} yakalandı ve genetiği çıkarıldı!")
                 continue
 
-            # 5. PE FORENSIC SÜZGEÇ (Giriş: .tmp dosyaları bu kontrolü bypass edemez)
+            # 6. PE FORENSIC SÜZGEÇ
             forensics = get_forensic_data(exe_path)
             company = forensics.get("company_name", "").lower()
             
@@ -188,7 +202,6 @@ def scan_and_kill(session_id):
                 print(f"[OTOMATİK İZİN - PE HEURISTIC] {process_name} ({company}) güvenilir üretici olarak onaylandı.")
                 continue
 
-            # Roblox Özel PE Kontrolü
             if "roblox" in company:
                 proc.kill()
                 repo.set_cached_status(build_cache_item(proc, exe_path, file_hash, 'BLOCKED', forensics))
@@ -196,7 +209,7 @@ def scan_and_kill(session_id):
                 print(f"[IHLAL - PE HEURISTIC] {process_name} (Roblox) yakalandı!")
                 continue
 
-            # 6. GRİ ALAN - API SORGUSU
+            # 7. GRİ ALAN - API SORGUSU
             print(f"[API SORGUSU] '{process_name}' inceleniyor...")
             if check_if_game_via_api(process_name):
                 proc.kill()
