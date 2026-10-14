@@ -68,6 +68,10 @@ def init_db():
         )
     """)
 
+    # Eski sürümlerden kalan BLOCKED ve ALLOWED durumlarını yeni standartlara (BLOCK / ALLOW) geçir
+    cursor.execute("UPDATE process_cache SET status = 'BLOCK' WHERE status = 'BLOCKED'")
+    cursor.execute("UPDATE process_cache SET status = 'ALLOW' WHERE status = 'ALLOWED'")
+
     conn.commit()
     conn.close()
 

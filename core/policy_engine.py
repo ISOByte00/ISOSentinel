@@ -24,7 +24,8 @@ class PolicyEngine:
         "svchost.exe", "explorer.exe", "sihost.exe", "ctfmon.exe",
         "system", "idle", "registry", "vctip.exe",
         "docker.exe", "dockerd.exe", "docker-desktop.exe", 
-        "wsl.exe", "vmmem", "com.docker.backend.exe", "wslhost.exe"
+        "wsl.exe", "vmmem", "com.docker.backend.exe", "wslhost.exe",
+        "dwm.exe", "wallpaper32.exe", "wallpaper64.exe"
     ]
 
     # Oyun İstemcileri / Platformlar (Kendi başlarına oyun değildir)
@@ -82,28 +83,26 @@ class PolicyEngine:
                 severity="HIGH"
             )
 
-        # 2. Kural: Sistem, Geliştirici ve Launcher Beyaz Listesi
-        if process_name in self.SYSTEM_DEV_WHITELIST or process_name in self.LAUNCHER_WHITELIST:
+        # 2. Kural: Sistem, Geliştirici ve Launcher Beyaz Listesi (Dokunulmazlar)
+        if (
+            process_name in self.SYSTEM_DEV_WHITELIST 
+            or process_name in self.LAUNCHER_WHITELIST
+            or "kristjan skutta" in company
+        ):
             return PolicyEvaluationResult(
                 decision=PolicyDecision.ALLOW,
                 reason="WHITELIST_PROCESS"
             )
 
-        # 3. Kural: PE Metadata Güvenilir Üretici Onayı
-        if not is_temp_file and any(trusted in company for trusted in self.TRUSTED_COMPANIES):
-            return PolicyEvaluationResult(
-                decision=PolicyDecision.ALLOW,
-                reason="TRUSTED_COMPANY_HEURISTIC"
-            )
-
-        # 4. Kural: Güvenli Klasörler (Safe Paths)
+        # 3. Kural: Güvenli Klasörler (Safe Paths)
         if any(safe_path in exe_path for safe_path in self.SAFE_PATHS):
             return PolicyEvaluationResult(
                 decision=PolicyDecision.ALLOW,
                 reason="SAFE_PATH"
             )
 
-        # 5. Kural: Oyun Klasörleri (Game Zones)
+        # 4. Kural: Oyun Klasörleri (Game Zones)
+        # Güvenilir üreticilerden (örneğin Microsoft) olsa bile oyun klasöründeyse engellenmelidir.
         if any(zone in exe_path for zone in self.GAME_ZONES):
             if "roblox" in company or "roblox" in exe_path:
                 return PolicyEvaluationResult(
@@ -116,6 +115,13 @@ class PolicyEngine:
                 decision=PolicyDecision.BLOCK,
                 reason="GAME_ZONE_MATCH",
                 severity="HIGH"
+            )
+
+        # 5. Kural: PE Metadata Güvenilir Üretici Onayı (Oyun klasörleri dışında kalan güvenilir yazılımlar)
+        if not is_temp_file and any(trusted in company for trusted in self.TRUSTED_COMPANIES):
+            return PolicyEvaluationResult(
+                decision=PolicyDecision.ALLOW,
+                reason="TRUSTED_COMPANY_HEURISTIC"
             )
 
         # 6. Kural: Dış İstihbarat (RAWG API)
