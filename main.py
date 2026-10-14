@@ -31,6 +31,7 @@ def main():
     setup_events()
     
     # 3. Arayüzü Başlat
+    window = DashboardWindow()
     window.show()
     
     sys.exit(app.exec())
