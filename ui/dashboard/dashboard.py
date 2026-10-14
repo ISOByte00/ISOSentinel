@@ -694,3 +694,12 @@ class DashboardWindow(QWidget):
         )
 
         self.input_topic.clear()
+
+    def closeEvent(self, event):
+        """Normal pencere kapanışında aktif oturumu güvenle iptal eder."""
+        if self.session.active_session_id is not None:
+            self.pomodoro_timer.stop()
+            self.guard_timer.stop()
+            self.session.stop_session(interrupted=True)
+
+        event.accept()
